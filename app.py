@@ -1,3 +1,58 @@
+pip install matplotlib
+# ======python的函數庫==========
+# ... (你现有的代码)
+
+# 导入必要的库
+from io import BytesIO
+import matplotlib.pyplot as plt
+
+# ... (你现有的代码)
+
+# 根据用户输入生成柱状图的函数
+def generate_chart(input_data):
+    # 用你自己的逻辑替换这里的 input_data 处理逻辑以及生成图表数据
+    data = {'类别A': 10, '类别B': 20, '类别C': 15}
+
+    # 创建一个简单的柱状图
+    plt.bar(data.keys(), data.values())
+    plt.xlabel('类别')
+    plt.ylabel('数值')
+    plt.title('样本柱状图')
+
+    # 将图表保存到 BytesIO 对象
+    image_stream = BytesIO()
+    plt.savefig(image_stream, format='png')
+    image_stream.seek(0)
+
+    # 为下一个图表清除绘图区域
+    plt.clf()
+
+    return image_stream
+
+# ... (你现有的代码)
+
+# 修改 handle_message 函数以包含图表生成
+@handler.add(MessageEvent, message=TextMessage)
+def handle_message(event):
+    msg = event.message.text
+    try:
+        # 生成 GPT 回复
+        GPT_answer = GPT_response(msg)
+
+        # 根据 GPT 回复生成图表
+        chart_stream = generate_chart(GPT_answer)
+
+        # 发送 GPT 回复文本和图表
+        line_bot_api.reply_message(event.reply_token, [
+            TextSendMessage(text=GPT_answer),
+            ImageSendMessage(original_content_url='https://your-chart-url-here', preview_image_url='https://your-chart-url-here')
+        ])
+    except Exception as e:
+        print(traceback.format_exc())
+        line_bot_api.reply_message(event.reply_token, TextSendMessage('错误: {}'.format(str(e))))
+
+# ... (你现有的代码)
+
 from flask import Flask, request, abort
 
 from linebot import (
